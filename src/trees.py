@@ -1,6 +1,6 @@
 import numpy as np
 from sklearn.tree import DecisionTreeRegressor
-from sklearn.ensemble import RandomForestRegressor
+from sklearn.ensemble import RandomForestRegressor, AdaBoostRegressor
 from sklearn.model_selection import cross_val_score
 import matplotlib.pyplot as plt
 '''
@@ -8,7 +8,9 @@ Script fits 4 models :
     1. Single decision Tree
     2. Random Forest
     3. Bagged decision Tree
-    4. Bagged Random Forest : Takes extra time
+    4. AdaBoost Tree
+    5. Bagged Adaboost Tree : Takes extra time
+    6. Bagged Random Forest : Takes extra time
 '''
 
 
@@ -77,6 +79,8 @@ class BaggedRegressor:
                 learn_model = DecisionTreeRegressor()
             if self.learnmodel == 'RandomForestRegressor':
                 learn_model = RandomForestRegressor()
+            if self.learnmodel == 'AdaBoostRegressor':
+                learn_model = AdaBoostRegressor()
             #learn_model = self.learnmodel 
             learn_model.fit(Xb, Yb)
             self.models.append(learn_model)
@@ -96,7 +100,7 @@ if __name__ == '__main__':
    split_size=80
    Xtrain, Ytrain, labels_train, labels_test = obj.generate_sample_data(split_size, N)
 
-   #Model : Decision Tree
+   #1. Model : Decision Tree
    model = DecisionTreeRegressor(max_depth=10)
    predictions = obj.modelfit(model, Xtrain, labels_train, Ytrain)
    train_predictions = obj.trainfit(model, Xtrain, labels_train)
@@ -105,7 +109,7 @@ if __name__ == '__main__':
    print "Test Score for 1 Decision Tree : %s"%(model.score(Ytrain, labels_test))
    obj.plot_data("Decision Tree", Xtrain, Ytrain, labels_train, labels_test, predictions, train_predictions)
    
-   #Model : Random Forest Regressor 
+   #2. Model : Random Forest Regressor 
    model = RandomForestRegressor()
    predictions = obj.modelfit(model, Xtrain, labels_train, Ytrain)
    train_predictions = obj.trainfit(model, Xtrain, labels_train)
@@ -114,7 +118,7 @@ if __name__ == '__main__':
    print "Test Score for random forest : %s"%(model.score(Ytrain, labels_test))
    obj.plot_data("Random Forest", Xtrain, Ytrain, labels_train, labels_test, predictions, train_predictions)
 
-   #Model : Bagged Decision Tree Regressor
+   #3. Model : Bagged Decision Tree Regressor
    model = BaggedRegressor('DecisionTreeRegressor',200,80)
    model.fit(Xtrain.ravel(), labels_train.ravel())
    predictions = obj.modelfit(model, Xtrain, labels_train, Ytrain)
@@ -123,7 +127,27 @@ if __name__ == '__main__':
    print "Test Score for bagged trees : %s"%(model.score(Ytrain, labels_test))
    obj.plot_data("Bagged DT : ", Xtrain, Ytrain, labels_train, labels_test, predictions, train_predictions)
 
-   #Model : Data and Feature Bagged (RF) Regressor
+   #4. Model : Adaboost Regressor
+   model = AdaBoostRegressor()
+   predictions = obj.modelfit(model, Xtrain, labels_train, Ytrain)
+   train_predictions = obj.trainfit(model, Xtrain, labels_train)
+   #obj.print_crossval(model, Xtrain, labels_train) 
+   print "Train Score for 1 AdaBoost Tree : %s"%(model.score(Xtrain, labels_train))
+   print "Test Score for 1 AdaBoost Tree : %s"%(model.score(Ytrain, labels_test))
+   obj.plot_data("Adaboost Tree", Xtrain, Ytrain, labels_train, labels_test, predictions, train_predictions)
+
+   #Because its too slow
+   #5. Model : Bagged AdaBoost Tree Regressor
+   model = BaggedRegressor('AdaBoostRegressor',200,80)
+   model.fit(Xtrain.ravel(), labels_train.ravel())
+   predictions = obj.modelfit(model, Xtrain, labels_train, Ytrain)
+   train_predictions = obj.trainfit(model, Xtrain, labels_train)
+   print "Train Score for bagged AdaBoost trees : %s"%(model.score(Xtrain, labels_train))
+   print "Test Score for bagged AdaBoost trees : %s"%(model.score(Ytrain, labels_test))
+   obj.plot_data("Bagged AdaBoost : ", Xtrain, Ytrain, labels_train, labels_test, predictions, train_predictions)
+
+   #Because its too slow
+   #6. Model : Data and Feature Bagged (RF) Regressor
    model = BaggedRegressor('RandomForestRegressor',200,80)
    model.fit(Xtrain.ravel(), labels_train.ravel())
    predictions = obj.modelfit(model, Xtrain, labels_train, Ytrain)
@@ -131,5 +155,6 @@ if __name__ == '__main__':
    print "Train Score for bagged RF trees : %s"%(model.score(Xtrain, labels_train))
    print "Test Score for bagged RF trees : %s"%(model.score(Ytrain, labels_test))
    obj.plot_data("Bagged RF DT : ", Xtrain, Ytrain, labels_train, labels_test, predictions, train_predictions)
+   
 
 
