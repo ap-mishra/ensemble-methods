@@ -7,10 +7,10 @@ import matplotlib.pyplot as plt
 Script fits 4 models :
     1. Single decision Tree
     2. Random Forest
-    3. Bagged decision Tree
+    3. Bagged decision Tree (custom implementation, not sklearn at bagging level)
     4. AdaBoost Tree
-    5. Bagged Adaboost Tree : Takes extra time
-    6. Bagged Random Forest : Takes extra time
+    5. Bagged Adaboost Tree : Takes extra time(custom implementation, not sklearn at bagging level)
+    6. Bagged Random Forest : Takes extra time(custom implementation, not sklearn at bagging level)
 '''
 
 
@@ -32,8 +32,6 @@ class datamodel():
       return  Xtrain, Ytrain, labels_train, labels_test
 
    def modelfit(self, model, Xtrain, labels_train, Ytrain):
-      print Xtrain.shape
-      print labels_train.shape
       model.fit(Xtrain, labels_train)
       predictions = model.predict(Ytrain)
       return predictions
@@ -90,6 +88,7 @@ class BaggedRegressor:
             predictions += model.predict(X)
         return predictions / self.B
     def score(self, X, Y):
+        #R^2 calculation
         d1 = (Y - self.predict(X).reshape(len(X),1)).ravel()
         d2 = (Y - Y.mean()).ravel()
         return 1 - d1.dot(d1) / d2.dot(d2)
@@ -113,7 +112,6 @@ if __name__ == '__main__':
    model = RandomForestRegressor()
    predictions = obj.modelfit(model, Xtrain, labels_train, Ytrain)
    train_predictions = obj.trainfit(model, Xtrain, labels_train)
-   #obj.print_crossval(model, Xtrain, labels_train) 
    print "Train Score for random forest : %s"%(model.score(Xtrain, labels_train))
    print "Test Score for random forest : %s"%(model.score(Ytrain, labels_test))
    obj.plot_data("Random Forest", Xtrain, Ytrain, labels_train, labels_test, predictions, train_predictions)
@@ -131,7 +129,6 @@ if __name__ == '__main__':
    model = AdaBoostRegressor()
    predictions = obj.modelfit(model, Xtrain, labels_train, Ytrain)
    train_predictions = obj.trainfit(model, Xtrain, labels_train)
-   #obj.print_crossval(model, Xtrain, labels_train) 
    print "Train Score for 1 AdaBoost Tree : %s"%(model.score(Xtrain, labels_train))
    print "Test Score for 1 AdaBoost Tree : %s"%(model.score(Ytrain, labels_test))
    obj.plot_data("Adaboost Tree", Xtrain, Ytrain, labels_train, labels_test, predictions, train_predictions)
